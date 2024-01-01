@@ -1,0 +1,50 @@
+{
+  "calendlyGetUser": {
+    "schema": {
+      "method": "GET",
+      "host": "api.calendly.com",
+      "path": "/users/me",
+      "headers": {
+        "Authorization": "Bearer <%=access_token%>",
+        "Content-Type": "application/json"
+      }
+    },
+    "options": {
+      "retryDelay": 1000,
+      "oauth": "calendly"
+    }
+  },
+  "calendlyListSchedules": {
+    "schema": {
+      "method": "GET",
+      "host": "api.calendly.com",
+      "path": "/scheduled_events?user=<%= context.user %>&status=active&<%= context.query %>",
+      "headers": {
+        "Authorization": "Bearer <%=access_token%>",
+        "Content-Type": "application/json"
+      },
+      "query": {
+        "count": 10
+      }
+    },
+    "options": {
+      "retryDelay": 1000,
+      "oauth": "calendly"
+    }
+  },
+  "calendlyEventDetails": {
+    "schema": {
+      "method": "GET",
+      "host": "api.calendly.com",
+      "path": "/scheduled_events/<%= context.uuid %>/invitees",
+      "headers": {
+        "Authorization": "Bearer <%=access_token%>",
+        "Content-Type": "application/json"
+      }
+    },
+    "options": {
+      "retryDelay": 1000,
+      "oauth": "calendly"
+    }
+  }
+}

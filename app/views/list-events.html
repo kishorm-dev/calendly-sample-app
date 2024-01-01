@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <title>List of Events</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script async src="{{{appclient}}}"></script>
+    <link rel="stylesheet" type="text/css" href="../styles/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/css/crayons-min.css"
+    />
+  </head>
+
+  <body>
+    <div class="main">
+      <div class="events-wrapper">
+        <div class="events-header">
+          <fw-datepicker
+            display-format="dd-MM-yyyy"
+            label="Range"
+            mode="range"
+            id="range-picker"
+            show-footer="false"
+          ></fw-datepicker>
+          <fw-select
+            label="Sort By"
+            value="desc"
+            placeholder="Your choice"
+            id="events-sort"
+          >
+            <fw-select-option value="desc">Newest</fw-select-option>
+            <fw-select-option value="asc">Oldest</fw-select-option>
+          </fw-select>
+        </div>
+        <div class="events-body"></div>
+        <div class="events-footer"></div>
+      </div>
+    </div>
+  </body>
+
+  <script defer src="../scripts/list-events.js"></script>
+  <script defer src="../scripts/data.js"></script>
+  <script
+    async
+    type="module"
+    src="https://unpkg.com/@freshworks/crayons@3/dist/crayons/crayons.esm.js"
+  ></script>
+  <script
+    async
+    nomodule
+    src="https://unpkg.com/@freshworks/crayons@3/dist/crayons/crayons.js"
+  ></script>
+</html>

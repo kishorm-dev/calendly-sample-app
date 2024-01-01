@@ -1,0 +1,44 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:after,
+*::before {
+  box-sizing: inherit;
+}
+
+.main {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.events-header {
+  display: flex;
+  justify-content: space-between;
+}
+.events-footer {
+  display: flex;
+  justify-content: space-between;
+}
+.events-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.events-wrapper {
+  width: 100%;
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+}
+
+.event-row {
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}

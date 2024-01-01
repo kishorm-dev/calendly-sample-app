@@ -1,0 +1,48 @@
+{
+  "platform-version": "3.0",
+  "modules": {
+    "support_ticket": {
+      "location": {
+        "ticket_sidebar": {
+          "url": "index.html",
+          "icon": "icon.svg"
+        }
+      }
+    },
+    "service_ticket": {
+      "location": {
+        "ticket_sidebar": {
+          "url": "index.html",
+          "icon": "icon.svg"
+        }
+      }
+    },
+    "deal": {
+      "location": {
+        "deal_entity_menu": {
+          "url": "index.html",
+          "icon": "icon.svg"
+        }
+      }
+    },
+    "chat_conversation": {
+      "location": {
+        "conversation_user_info": {
+          "url": "index.html",
+          "icon": "icon.svg"
+        }
+      }
+    },
+    "common": {
+      "requests": {
+        "calendlyGetUser": {},
+        "calendlyListSchedules": {},
+        "calendlyEventDetails": {}
+      }
+    }
+  },
+  "engines": {
+    "node": "18.19.0",
+    "fdk": "9.1.0"
+  }
+}
