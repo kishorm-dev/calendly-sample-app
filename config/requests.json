@@ -24,7 +24,8 @@
         "Content-Type": "application/json"
       },
       "query": {
-        "count": 10
+        "count": 10,
+        "invitee_email": "<%= context.invitee_email %>"
       }
     },
     "options": {

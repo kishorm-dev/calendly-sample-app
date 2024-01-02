@@ -2,8 +2,8 @@ let client;
 
 init();
 
-let userDetails;
-// let query = "&sort=start_time:desc";
+let userDetails, contactDetails;
+
 const applyChanges = document.getElementById("apply-changes");
 const rangePicker = document.getElementById("range-picker");
 const eventsSort = document.getElementById("events-sort");
@@ -54,21 +54,20 @@ applyChanges.addEventListener("fwClick", async () => {
   if (rangePicker.fromDate != undefined && rangePicker.toDate != undefined) {
     let fromDate = getISODate(rangePicker?.fromDate);
     let toDate = getISODate(rangePicker?.toDate);
-    console.log(new Date(fromDate).toISOString());
     query += `&min_start_time=${fromDate}&max_start_time=${toDate}`;
   }
   if (eventsStatus.value !== "all") {
     query += `&status=${eventsStatus.value}`;
   }
-  console.log(query);
   await renderAll(query);
   showToast("success", "Events updated Successfully");
   applyChanges.removeAttribute("loading");
 });
 
 async function renderWidget() {
-  userDetails = await getModalData();
-  console.log(userDetails);
+  data = await getModalData();
+  userDetails = data.userDetails;
+  contactDetails = data.contactDetails;
   renderAll("&sort=start_time:desc");
 }
 
@@ -241,15 +240,17 @@ function renderEventBody(body, event, eventDetail, accordion) {
 }
 
 async function renderAll(query) {
-  const { collection, pagination } = await getEvents(userDetails.uri, query);
-  console.log({ collection, pagination });
+  const { collection, pagination } = await getEvents(
+    userDetails.uri,
+    query,
+    contactDetails.email
+  );
   renderEvents(collection);
   renderPagination(pagination);
 }
 
 async function renderPaginate(query) {
   const { collection, pagination } = await getPagination(query);
-  console.log({ collection, pagination });
   renderEvents(collection);
   renderPagination(pagination);
 }

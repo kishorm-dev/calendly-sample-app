@@ -5,7 +5,11 @@ const scheduleMeeting = document.getElementById("schedule-meeting");
 const listEvents = document.getElementById("list-events");
 
 let [userDetails, contactDetails] = [];
-async function onAppActiveHandler() {
+
+async function init() {
+  client = await app.initialized();
+  console.log(await client);
+  console.log(await client.data.get("requester"));
   try {
     scheduleMeeting.setAttribute("loading", true);
     listEvents.setAttribute("loading", true);
@@ -22,15 +26,9 @@ async function onAppActiveHandler() {
     listEvents.addEventListener("click", async () => {
       openListEventsModal();
     });
-    console.log(userDetails, contactDetails);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
-}
-
-async function init() {
-  client = await app.initialized();
-  client.events.on("app.activated", onAppActiveHandler);
 }
 
 async function openBookingModal() {
@@ -45,7 +43,6 @@ async function openBookingModal() {
     });
     client.instance.receive(function (event) {
       let data = event.helper.getData();
-      console.log(data);
       showNotification("info", "Event Link Copied to Clipboard!");
     });
   } catch (error) {
@@ -58,7 +55,10 @@ function openListEventsModal() {
     client.interface.trigger("showModal", {
       title: "List Events",
       template: "./views/list-events.html",
-      data: userDetails,
+      data: {
+        userDetails,
+        contactDetails,
+      },
     });
   } catch (error) {
     console.error(error);

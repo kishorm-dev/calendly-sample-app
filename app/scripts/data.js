@@ -13,15 +13,21 @@ async function getUser() {
 
 async function getContact() {
   try {
-    let contactDetails = await client.data.get("contact");
-    contactDetails = contactDetails.contact;
+    let contactDetails;
+    if (client.context.product == "freshservice") {
+      contactDetails = await client.data.get("requester");
+      contactDetails = contactDetails.requester;
+    } else {
+      contactDetails = await client.data.get("contact");
+      contactDetails = contactDetails.contact;
+    }
     return contactDetails;
   } catch (error) {
     showError(error);
   }
 }
 
-async function getEvents(uri, query) {
+async function getEvents(uri, query, invitee_email) {
   try {
     let listEvents = await client.request.invokeTemplate(
       "calendlyListSchedules",
@@ -29,6 +35,7 @@ async function getEvents(uri, query) {
         context: {
           user: uri,
           query,
+          invitee_email,
         },
       }
     );
