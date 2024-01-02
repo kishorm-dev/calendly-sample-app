@@ -18,7 +18,7 @@
     "schema": {
       "method": "GET",
       "host": "api.calendly.com",
-      "path": "/scheduled_events?user=<%= context.user %>&status=active&<%= context.query %>",
+      "path": "/scheduled_events?<%= context.query %>&user=<%= context.user %>",
       "headers": {
         "Authorization": "Bearer <%=access_token%>",
         "Content-Type": "application/json"
@@ -37,6 +37,36 @@
       "method": "GET",
       "host": "api.calendly.com",
       "path": "/scheduled_events/<%= context.uuid %>/invitees",
+      "headers": {
+        "Authorization": "Bearer <%=access_token%>",
+        "Content-Type": "application/json"
+      }
+    },
+    "options": {
+      "retryDelay": 1000,
+      "oauth": "calendly"
+    }
+  },
+  "calendlyDeleteSchedule": {
+    "schema": {
+      "method": "POST",
+      "host": "api.calendly.com",
+      "path": "/scheduled_events/<%= context.uuid %>/cancellation",
+      "headers": {
+        "Authorization": "Bearer <%=access_token%>",
+        "Content-Type": "application/json"
+      }
+    },
+    "options": {
+      "retryDelay": 1000,
+      "oauth": "calendly"
+    }
+  },
+  "calendlyPagination": {
+    "schema": {
+      "method": "GET",
+      "host": "api.calendly.com",
+      "path": "/scheduled_events<%= context.query %>",
       "headers": {
         "Authorization": "Bearer <%=access_token%>",
         "Content-Type": "application/json"

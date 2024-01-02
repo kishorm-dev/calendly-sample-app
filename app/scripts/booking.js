@@ -16,7 +16,6 @@ async function renderWidget() {
       email: contactDetails.email,
     },
   });
-  document.getElementById("booking-loader").remove();
 }
 
 async function getData() {
@@ -34,10 +33,11 @@ function isCalendlyEvent(e) {
 }
 
 window.addEventListener("message", async function (e) {
-  if (isCalendlyEvent(e)) {
-    let url = e.data.payload.event?.uri;
-    copyToClipboard(url);
-    closeModal(url);
+  if (isCalendlyEvent(e) && e.data.event == "calendly.profile_page_viewed") {
+    document.getElementById("booking-loader")?.remove();
+  }
+  if (isCalendlyEvent(e) && e.data.event == "calendly.event_scheduled") {
+    showToast("success", "Events Scheduled Successfully.");
   }
 });
 
@@ -55,9 +55,6 @@ function copyToClipboard(text) {
 async function closeModal(url) {
   try {
     client.instance.close();
-    document
-      .querySelector("#type_toast")
-      ?.trigger({ type: "inprogress", content: "Request is in progress" });
     await client.instance.send({
       message: {
         link: url,

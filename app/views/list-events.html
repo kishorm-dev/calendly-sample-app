@@ -20,13 +20,13 @@
         <div class="events-header">
           <fw-datepicker
             display-format="dd-MM-yyyy"
-            label="Range"
+            label="Range :"
             mode="range"
             id="range-picker"
             show-footer="false"
           ></fw-datepicker>
           <fw-select
-            label="Sort By"
+            label="Sort By :"
             value="desc"
             placeholder="Your choice"
             id="events-sort"
@@ -34,11 +34,48 @@
             <fw-select-option value="desc">Newest</fw-select-option>
             <fw-select-option value="asc">Oldest</fw-select-option>
           </fw-select>
+
+          <fw-select
+            label="Status :"
+            value="all"
+            placeholder="Your choice"
+            id="events-status"
+          >
+            <fw-select-option value="all">All</fw-select-option>
+            <fw-select-option value="active">Active</fw-select-option>
+            <fw-select-option value="canceled">Canceled</fw-select-option>
+          </fw-select>
         </div>
-        <div class="events-body"></div>
+        <fw-button color="primary" id="apply-changes">Apply Changes</fw-button>
+        <div class="events-body">
+          <fw-skeleton variant="rect" count="10" height="30px"></fw-skeleton>
+        </div>
         <div class="events-footer"></div>
       </div>
     </div>
+    <fw-toast id="type_toast"></fw-toast>
+    <fw-modal id="cancel-event" title-text="Delete Event">
+      <fw-modal-content>
+        <span class="fw-type-lg"
+          >Are you sure you want to delete this Event?</span
+        >
+        <fw-textarea
+          cols="50"
+          rows="4"
+          max-rows="10"
+          max-rows-debounce-timer="300"
+          id="cancel-reason"
+          label="Reason (Optional)"
+        >
+        </fw-textarea>
+      </fw-modal-content>
+      <fw-modal-footer
+        submit-text="Cancel Event"
+        cancel-text="Discard"
+        submit-color="danger"
+        id="cancel-footer"
+      ></fw-modal-footer>
+    </fw-modal>
   </body>
 
   <script defer src="../scripts/list-events.js"></script>

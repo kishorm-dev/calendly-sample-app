@@ -3,56 +3,73 @@ let client;
 init();
 
 let userDetails;
-let query = "&sort=start_time:desc";
+// let query = "&sort=start_time:desc";
+const applyChanges = document.getElementById("apply-changes");
+const rangePicker = document.getElementById("range-picker");
+const eventsSort = document.getElementById("events-sort");
+const eventsStatus = document.getElementById("events-status");
+
 async function init() {
   client = await app.initialized();
   renderWidget();
 }
-const rangePicker = document.getElementById("range-picker");
-const eventsSort = document.getElementById("events-sort");
-rangePicker.addEventListener("fwChange", (e) => {
-  let fromDate = e.detail.value.fromDate;
-  let toDate = e.detail.value.toDate;
-  query += `&min_start_time=${fromDate}`;
-  console.log(toDate);
-  renderAll(query);
-});
-eventsSort.addEventListener("fwDateInput", (e) => {
-  query = `&sort=start_time:${e.detail.value}`;
-  renderAll(query);
-});
-function setDate() {
-  const today = new Date();
-  const minYear = today.getFullYear();
-  const maxYear = today.getFullYear() + 10;
-  const minDate =
-    minYear + "-" + (today.getMonth() + 1) + "-" + today.getDate();
-  const maxDate =
-    maxYear + "-" + (today.getMonth() + 1) + "-" + today.getDate();
-  rangePicker.setAttribute("min-year", minYear);
-  rangePicker.setAttribute("max-year", maxYear);
-  rangePicker.setAttribute("min-date", minDate);
-  rangePicker.setAttribute("max-date", maxDate);
+
+function getISODate(date) {
+  return date.split("-").reverse().join("-");
 }
 
-// async function generateRangeQuery(uri, date) {
-//   let sort = eventsSort.getAttribute("value");
-//   let query = `&sort=start_time:${sort}&min_start_time=${date.fromDate}&max_start_time=${date.toDate}`;
+async function cancelEvent(url, accordion) {
+  const newUrl = new URL(url);
+  let cancelUrl = newUrl.pathname.split("/");
+  cancelUrl = cancelUrl[cancelUrl.length - 1];
+  const cancelModal = document.querySelector("#cancel-event");
+  const cancelReason = document.querySelector("#cancel-reason");
+  const cancelFooter = document.querySelector("#cancel-footer");
+  cancelModal.open();
+  cancelReason.value = "";
+  cancelModal.addEventListener("fwSubmit", async () => {
+    cancelFooter.setAttribute("submit-disabled", true);
+    await deleteEvent(cancelUrl, cancelReason.value);
+    showToast("info", "Event Canceled Successfully");
+    cancelFooter.setAttribute("submit-disabled", false);
+    cancelReason.value = "";
+    cancelModal.close();
+    accordion.remove();
+  });
+}
 
-//   try {
-//     const events = await getEvents(uri, query);
-//     console.log(events);
-//     renderEvents(collection);
-//     renderPagination(pagination);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
+function rescheduleEvent(url) {
+  try {
+    window.open(url, "_blank");
+    client.instance.close();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+applyChanges.addEventListener("fwClick", async () => {
+  applyChanges.setAttribute("loading", true);
+  let sort = eventsSort.value;
+  let query = `&sort=start_time:${sort}`;
+  if (rangePicker.fromDate != undefined && rangePicker.toDate != undefined) {
+    let fromDate = getISODate(rangePicker?.fromDate);
+    let toDate = getISODate(rangePicker?.toDate);
+    console.log(new Date(fromDate).toISOString());
+    query += `&min_start_time=${fromDate}&max_start_time=${toDate}`;
+  }
+  if (eventsStatus.value !== "all") {
+    query += `&status=${eventsStatus.value}`;
+  }
+  console.log(query);
+  await renderAll(query);
+  showToast("success", "Events updated Successfully");
+  applyChanges.removeAttribute("loading");
+});
 
 async function renderWidget() {
   userDetails = await getModalData();
   console.log(userDetails);
-  renderAll(query);
+  renderAll("&sort=start_time:desc");
 }
 
 async function getModalData() {
@@ -73,36 +90,55 @@ function getUUID(uri) {
 }
 
 async function renderPagination(page) {
-  if (page.previous_page_token == null && page.next_page_token == null) {
+  const eventsFooter = document.querySelector(".events-footer");
+  eventsFooter.innerHTML = "";
+  if (
+    page.count === 0 ||
+    (page.previous_page_token === null && page.next_page_token === null)
+  ) {
     return;
   }
-  const footer = document.querySelector(".events-footer");
-  footer.innerHTML = "";
+
   const nextPage = document.createElement("fw-button");
   const prevPage = document.createElement("fw-button");
+
   nextPage.textContent = "Show Next";
   prevPage.textContent = "Show Previous";
+
   nextPage.setAttribute("color", "secondary");
   prevPage.setAttribute("color", "secondary");
+  prevPage.setAttribute("disabled", true);
+  nextPage.setAttribute("disabled", true);
+
   if (page.previous_page_token != null) {
-    nextPage.setAttribute("disabled", true);
-    prevPage.addEventListener("click", () => {
-      query += `&page_token=${page.previous_page_token}`;
-      renderAll(query);
-    });
-  } else if (page.next_page_token != null) {
-    prevPage.setAttribute("disabled", true);
-    nextPage.addEventListener("click", () => {
-      query += `&page_token=${page.next_page_token}`;
-      renderAll(query);
+    prevPage.removeAttribute("disabled");
+    prevPage.addEventListener("click", async () => {
+      prevPage.setAttribute("loading", true);
+      let prevUrl = new URL(page.previous_page);
+      await renderPaginate(prevUrl.search);
+      prevPage.removeAttribute("loading");
     });
   }
-  footer.appendChild(prevPage);
-  footer.appendChild(nextPage);
+  if (page.next_page_token != null) {
+    nextPage.removeAttribute("disabled");
+    nextPage.addEventListener("click", async () => {
+      nextPage.setAttribute("loading", true);
+      let nextUrl = new URL(page.next_page);
+      await renderPaginate(nextUrl.search);
+      nextPage.removeAttribute("loading");
+    });
+  }
+  eventsFooter.appendChild(prevPage);
+  eventsFooter.appendChild(nextPage);
 }
 
 async function renderEvents(eventList) {
   const eventsWrapper = document.querySelector(".events-body");
+  if (eventList.length < 1) {
+    eventsWrapper.innerHTML =
+      "<div class='fw-type-h3'>No Results Found...</div>";
+    return;
+  }
   eventsWrapper.innerHTML = "";
   eventList.map((event) => {
     const accordion = document.createElement("fw-accordion");
@@ -129,7 +165,7 @@ async function renderEvents(eventList) {
     accordion.addEventListener("fwAccordionToggle", async () => {
       if (accordion.getAttribute("expanded") == null) {
         const eventDetail = await getEventData(uri);
-        renderEventBody(accordionBody, event, eventDetail);
+        renderEventBody(accordionBody, event, eventDetail, accordion);
         skeleton.remove();
       }
     });
@@ -139,7 +175,7 @@ async function renderEvents(eventList) {
   });
 }
 
-function renderEventBody(body, event, eventDetail) {
+function renderEventBody(body, event, eventDetail, accordion) {
   body.innerHTML = `<div class="event-row">
     <div class="fw-type-bold">Meeting Host :</div>
     <fw-label
@@ -185,26 +221,35 @@ function renderEventBody(body, event, eventDetail) {
       minute="numeric"
       hour-format="12"
     ></fw-format-date>
-  </div>
-
-  <div class="">
-    <fw-button color="primary"> Reschedule Event </fw-button>
-    <fw-tooltip content="Cancel event">
-      <fw-button color="danger" size="icon">
-        <fw-icon slot="before-label" name="delete"></fw-icon>
-      </fw-button>
-    </fw-tooltip>
   </div>`;
-
+  let eventEndTime = new Date(event.end_time);
+  let today = new Date();
+  if (eventEndTime > today) {
+    body.innerHTML += `<div class="">
+    <fw-tooltip content="You will be redirected to rescheduling page">
+      <fw-button color="primary" onClick="rescheduleEvent('${eventDetail.reschedule_url}')"> Reschedule Event </fw-button>
+      </fw-tooltip>
+      <fw-tooltip content="Cancel event">
+        <fw-button color="danger" size="icon"
+        onClick="cancelEvent('${eventDetail.event}',${accordion})">
+          <fw-icon slot="before-label" name="delete"></fw-icon>
+        </fw-button>
+      </fw-tooltip>
+    </div>`;
+  }
   return body;
 }
 
 async function renderAll(query) {
-  const { collection, pagination } = await getEvents(
-    userDetails.uri,
-    query,
-    "&start_time:asc&page_token=page.previous_page_token"
-  );
+  const { collection, pagination } = await getEvents(userDetails.uri, query);
+  console.log({ collection, pagination });
+  renderEvents(collection);
+  renderPagination(pagination);
+}
+
+async function renderPaginate(query) {
+  const { collection, pagination } = await getPagination(query);
+  console.log({ collection, pagination });
   renderEvents(collection);
   renderPagination(pagination);
 }

@@ -18,6 +18,7 @@ html {
 .events-header {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 .events-footer {
   display: flex;
@@ -28,11 +29,14 @@ html {
   flex-direction: column;
   gap: 15px;
 }
+#apply-changes {
+  width: fit-content;
+  justify-self: end;
+}
 .events-wrapper {
   width: 100%;
-  display: flex;
+  display: grid;
   gap: 20px;
-  flex-direction: column;
 }
 
 .event-row {

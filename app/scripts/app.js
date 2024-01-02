@@ -7,20 +7,20 @@ const listEvents = document.getElementById("list-events");
 let [userDetails, contactDetails] = [];
 async function onAppActiveHandler() {
   try {
+    scheduleMeeting.setAttribute("loading", true);
+    listEvents.setAttribute("loading", true);
     [userDetails, contactDetails] = await Promise.all([
       getUser(),
       getContact(),
     ]);
+    scheduleMeeting.removeAttribute("loading");
+    listEvents.removeAttribute("loading");
     scheduleMeeting.addEventListener("click", async () => {
-      scheduleMeeting.setAttribute("loading", true);
       await openBookingModal();
-      scheduleMeeting.removeAttribute("loading");
     });
 
     listEvents.addEventListener("click", async () => {
-      listEvents.setAttribute("loading", true);
-      await openListEventsModal();
-      listEvents.removeAttribute("loading");
+      openListEventsModal();
     });
     console.log(userDetails, contactDetails);
   } catch (error) {
@@ -55,12 +55,11 @@ async function openBookingModal() {
 
 function openListEventsModal() {
   try {
-    let data = client.interface.trigger("showModal", {
+    client.interface.trigger("showModal", {
       title: "List Events",
       template: "./views/list-events.html",
       data: userDetails,
     });
-    console.log(data);
   } catch (error) {
     console.error(error);
   }

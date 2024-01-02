@@ -37,7 +37,9 @@
       "requests": {
         "calendlyGetUser": {},
         "calendlyListSchedules": {},
-        "calendlyEventDetails": {}
+        "calendlyEventDetails": {},
+        "calendlyDeleteSchedule": {},
+        "calendlyPagination": {}
       }
     }
   },

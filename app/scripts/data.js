@@ -22,7 +22,6 @@ async function getContact() {
 }
 
 async function getEvents(uri, query) {
-  console.log(uri, query);
   try {
     let listEvents = await client.request.invokeTemplate(
       "calendlyListSchedules",
@@ -30,6 +29,36 @@ async function getEvents(uri, query) {
         context: {
           user: uri,
           query,
+        },
+      }
+    );
+    listEvents = JSON.parse(listEvents.response);
+    return listEvents;
+  } catch (error) {
+    showError(error);
+  }
+}
+async function getPagination(query) {
+  try {
+    let listEvents = await client.request.invokeTemplate("calendlyPagination", {
+      context: {
+        query,
+      },
+    });
+    listEvents = JSON.parse(listEvents.response);
+    return listEvents;
+  } catch (error) {
+    showError(error);
+  }
+}
+async function deleteEvent(url, reason) {
+  try {
+    let listEvents = await client.request.invokeTemplate(
+      "calendlyDeleteSchedule",
+      {
+        context: {
+          uuid: url,
+          reason,
         },
       }
     );
@@ -91,6 +120,9 @@ async function showNotification(type, message) {
       message,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
+}
+async function showToast(type, content) {
+  document.querySelector("#type_toast").trigger({ type, content });
 }
