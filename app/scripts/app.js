@@ -30,7 +30,7 @@ async function init() {
   }
 }
 
-async function openBookingModal() {
+function openBookingModal() {
   try {
     client.interface.trigger("showModal", {
       title: "Book Event",
@@ -39,10 +39,6 @@ async function openBookingModal() {
         userDetails,
         contactDetails,
       },
-    });
-    client.instance.receive(function (event) {
-      event.helper.getData();
-      showNotification("info", "Event Link Copied to Clipboard!");
     });
   } catch (error) {
     console.error(error);

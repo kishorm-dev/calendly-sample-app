@@ -112,44 +112,30 @@ async function getDealContact() {
   }
 }
 
-async function showNotification(type, message) {
-  try {
-    await client.interface.trigger("showNotify", {
-      type: type,
-      message,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function showToast(type, content) {
+function showToast(type, content) {
   document.querySelector("#type_toast").trigger({ type, content });
 }
 
 function showError(error) {
   switch (error.status) {
     case 400:
-      showNotification("info", "Request is not Valid");
+      showToast("error", "Request is not Valid");
       break;
     case 401:
-      showNotification(
-        "info",
-        "Invalid Authentication, Try Re-authorizing the app"
-      );
+      showToast("error", "Invalid Authentication, Try Re-authorizing the app");
       break;
     case 403:
-      showNotification("info", "Permission Denied");
+      showToast("error", "Permission Denied");
       break;
     case 404:
-      showNotification("info", "Requested resource not found");
+      showToast("error", "Requested resource not found");
       break;
     case 405:
-      showNotification("info", "An error has occurred on the server");
+      showToast("error", "An error has occurred on the server");
       break;
     default:
-      showNotification("info", "Unknown error occured. Please try again");
+      showToast("error", "Unknown error occured. Please try again");
       break;
   }
-  console.error(error);
+  console.error("Error Occured :", error);
 }

@@ -92,8 +92,8 @@ async function renderPagination(page) {
   const eventsFooter = document.querySelector(".events-footer");
   eventsFooter.innerHTML = "";
   if (
-    page.count === 0 ||
-    (page.previous_page_token === null && page.next_page_token === null)
+    page?.count === 0 ||
+    (page?.previous_page_token === null && page?.next_page_token === null)
   ) {
     return;
   }
@@ -109,7 +109,7 @@ async function renderPagination(page) {
   prevPage.setAttribute("disabled", true);
   nextPage.setAttribute("disabled", true);
 
-  if (page.previous_page_token != null) {
+  if (page?.previous_page_token != null) {
     prevPage.removeAttribute("disabled");
     prevPage.addEventListener("click", async () => {
       prevPage.setAttribute("loading", true);
@@ -118,7 +118,7 @@ async function renderPagination(page) {
       prevPage.removeAttribute("loading");
     });
   }
-  if (page.next_page_token != null) {
+  if (page?.next_page_token != null) {
     nextPage.removeAttribute("disabled");
     nextPage.addEventListener("click", async () => {
       nextPage.setAttribute("loading", true);
@@ -133,13 +133,13 @@ async function renderPagination(page) {
 
 async function renderEvents(eventList) {
   const eventsWrapper = document.querySelector(".events-body");
-  if (eventList.length < 1) {
+  if (eventList?.length < 1) {
     eventsWrapper.innerHTML =
       "<div class='fw-type-h3'>No Results Found...</div>";
     return;
   }
   eventsWrapper.innerHTML = "";
-  eventList.map((event) => {
+  eventList?.map((event) => {
     const accordion = document.createElement("fw-accordion");
     accordion.setAttribute("type", "default");
     const accordionTitle = document.createElement("fw-accordion-title");
@@ -250,7 +250,7 @@ async function getEventDatas(query) {
 }
 
 async function getPaginateData(query) {
-  const { collection, pagination } = await getPagination(query);
+  const { collection, pagination } = (await getPagination(query)) || {};
   renderEvents(collection);
   renderPagination(pagination);
 }
