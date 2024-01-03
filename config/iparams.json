@@ -1,1 +1,17 @@
-{}
+{
+  "api_key": {
+    "display_name": "API Key",
+    "description": "Please enter your API Key",
+    "type": "text",
+    "secure": true,
+    "required": true,
+    "modules": ["deal", "chat_conversation"]
+  },
+  "domain": {
+    "display_name": "Domain name",
+    "description": "Please enter your name",
+    "type": "text",
+    "required": true,
+    "modules": ["deal", "chat_conversation"]
+  }
+}

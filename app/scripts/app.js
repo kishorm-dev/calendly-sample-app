@@ -1,15 +1,14 @@
-let client;
+document.onreadystatechange = function () {
+  if (document.readyState === "complete") init();
+};
 
-init();
 const scheduleMeeting = document.getElementById("schedule-meeting");
 const listEvents = document.getElementById("list-events");
 
 let [userDetails, contactDetails] = [];
 
 async function init() {
-  client = await app.initialized();
-  console.log(await client);
-  console.log(await client.data.get("requester"));
+  window.client = await app.initialized();
   try {
     scheduleMeeting.setAttribute("loading", true);
     listEvents.setAttribute("loading", true);
@@ -42,7 +41,7 @@ async function openBookingModal() {
       },
     });
     client.instance.receive(function (event) {
-      let data = event.helper.getData();
+      event.helper.getData();
       showNotification("info", "Event Link Copied to Clipboard!");
     });
   } catch (error) {

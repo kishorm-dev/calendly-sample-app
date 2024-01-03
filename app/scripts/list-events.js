@@ -1,6 +1,6 @@
-let client;
-
-init();
+document.onreadystatechange = function () {
+  if (document.readyState === "complete") init();
+};
 
 let userDetails, contactDetails;
 
@@ -10,8 +10,25 @@ const eventsSort = document.getElementById("events-sort");
 const eventsStatus = document.getElementById("events-status");
 
 async function init() {
-  client = await app.initialized();
+  window.client = await app.initialized();
   renderWidget();
+}
+
+async function renderWidget() {
+  const data = await getModalData();
+  userDetails = data.userDetails;
+  contactDetails = data.contactDetails;
+  getEventDatas("&sort=start_time:desc");
+}
+
+async function getModalData() {
+  try {
+    let modalData = await client.instance.context();
+    client.instance.resize({ height: "100vh" });
+    return modalData.data;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function getISODate(date) {
@@ -59,27 +76,10 @@ applyChanges.addEventListener("fwClick", async () => {
   if (eventsStatus.value !== "all") {
     query += `&status=${eventsStatus.value}`;
   }
-  await renderAll(query);
+  await getEventDatas(query);
   showToast("success", "Events updated Successfully");
   applyChanges.removeAttribute("loading");
 });
-
-async function renderWidget() {
-  data = await getModalData();
-  userDetails = data.userDetails;
-  contactDetails = data.contactDetails;
-  renderAll("&sort=start_time:desc");
-}
-
-async function getModalData() {
-  try {
-    let modalData = await client.instance.context();
-    client.instance.resize({ height: "100vh" });
-    return modalData.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
 
 function getUUID(uri) {
   let url = new URL(uri);
@@ -114,7 +114,7 @@ async function renderPagination(page) {
     prevPage.addEventListener("click", async () => {
       prevPage.setAttribute("loading", true);
       let prevUrl = new URL(page.previous_page);
-      await renderPaginate(prevUrl.search);
+      await getPaginateData(prevUrl.search);
       prevPage.removeAttribute("loading");
     });
   }
@@ -123,7 +123,7 @@ async function renderPagination(page) {
     nextPage.addEventListener("click", async () => {
       nextPage.setAttribute("loading", true);
       let nextUrl = new URL(page.next_page);
-      await renderPaginate(nextUrl.search);
+      await getPaginateData(nextUrl.search);
       nextPage.removeAttribute("loading");
     });
   }
@@ -239,7 +239,7 @@ function renderEventBody(body, event, eventDetail, accordion) {
   return body;
 }
 
-async function renderAll(query) {
+async function getEventDatas(query) {
   const { collection, pagination } = await getEvents(
     userDetails.uri,
     query,
@@ -249,7 +249,7 @@ async function renderAll(query) {
   renderPagination(pagination);
 }
 
-async function renderPaginate(query) {
+async function getPaginateData(query) {
   const { collection, pagination } = await getPagination(query);
   renderEvents(collection);
   renderPagination(pagination);

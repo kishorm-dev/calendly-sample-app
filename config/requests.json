@@ -77,5 +77,20 @@
       "retryDelay": 1000,
       "oauth": "calendly"
     }
+  },
+  "getDealContact": {
+    "schema": {
+      "protocol": "https",
+      "method": "GET",
+      "host": "<%= iparam.domain %>.myfreshworks.com",
+      "path": "/crm/sales/api/deals/402000488060?include=contacts",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.api_key %>",
+        "Content-Type": "application/json"
+      }
+    },
+    "options": {
+      "retryDelay": 1000
+    }
   }
 }

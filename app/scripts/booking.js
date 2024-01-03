@@ -1,9 +1,9 @@
-let client;
-
-init();
+document.onreadystatechange = function () {
+  if (document.readyState === "complete") init();
+};
 
 async function init() {
-  client = await app.initialized();
+  window.client = await app.initialized();
   renderWidget();
 }
 
@@ -12,7 +12,9 @@ async function renderWidget() {
   Calendly.initInlineWidget({
     url: "https://calendly.com/" + userDetails.slug,
     prefill: {
-      name: contactDetails.name,
+      name:
+        contactDetails.name ||
+        `${contactDetails.first_name} ${contactDetails.last_name}`,
       email: contactDetails.email,
     },
   });

@@ -14,7 +14,13 @@ async function getUser() {
 async function getContact() {
   try {
     let contactDetails;
-    if (client.context.product == "freshservice") {
+    if (client.context.product == "freshchat") {
+      contactDetails = await client.data.get("user");
+      contactDetails = contactDetails.user;
+    } else if (client.context.product == "freshworks_crm") {
+      contactDetails = await getDealContact();
+      contactDetails = contactDetails.contacts[0];
+    } else if (client.context.product == "freshservice") {
       contactDetails = await client.data.get("requester");
       contactDetails = contactDetails.requester;
     } else {
@@ -58,6 +64,7 @@ async function getPagination(query) {
     showError(error);
   }
 }
+
 async function deleteEvent(url, reason) {
   try {
     let listEvents = await client.request.invokeTemplate(
@@ -93,6 +100,33 @@ async function getEventData(uri) {
   }
 }
 
+async function getDealContact() {
+  try {
+    let eventDetail = await client.request.invokeTemplate("getDealContact", {});
+    console.log(eventDetail);
+    eventDetail = JSON.parse(eventDetail.response);
+    console.log(eventDetail);
+    return eventDetail;
+  } catch (error) {
+    showError(error);
+  }
+}
+
+async function showNotification(type, message) {
+  try {
+    await client.interface.trigger("showNotify", {
+      type: type,
+      message,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function showToast(type, content) {
+  document.querySelector("#type_toast").trigger({ type, content });
+}
+
 function showError(error) {
   switch (error.status) {
     case 400:
@@ -118,18 +152,4 @@ function showError(error) {
       break;
   }
   console.error(error);
-}
-
-async function showNotification(type, message) {
-  try {
-    await client.interface.trigger("showNotify", {
-      type: type,
-      message,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
-async function showToast(type, content) {
-  document.querySelector("#type_toast").trigger({ type, content });
 }

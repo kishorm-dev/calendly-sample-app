@@ -39,7 +39,8 @@
         "calendlyListSchedules": {},
         "calendlyEventDetails": {},
         "calendlyDeleteSchedule": {},
-        "calendlyPagination": {}
+        "calendlyPagination": {},
+        "getDealContact": {}
       }
     }
   },
