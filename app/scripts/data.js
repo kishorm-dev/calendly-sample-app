@@ -7,7 +7,10 @@ async function getUser() {
     userDetails = JSON.parse(userDetails.response).resource;
     return userDetails;
   } catch (error) {
+    console.error("Calendly - Error retrieving user data - ", error);
     showError(error);
+  } finally {
+    console.info("Calendly - Fetching user details block executed");
   }
 }
 
@@ -29,7 +32,10 @@ async function getContact() {
     }
     return contactDetails;
   } catch (error) {
+    console.error("Calendly - Error retrieving contact data - ", error);
     showError(error);
+  } finally {
+    console.info("Calendly - Fetching contact details block executed");
   }
 }
 
@@ -48,9 +54,13 @@ async function getEvents(uri, query, invitee_email) {
     listEvents = JSON.parse(listEvents.response);
     return listEvents;
   } catch (error) {
+    console.error("Calendly - Error retrieving events data - ", error);
     showError(error);
+  } finally {
+    console.info("Calendly - Fetching event list block executed");
   }
 }
+
 async function getPagination(query) {
   try {
     let listEvents = await client.request.invokeTemplate("calendlyPagination", {
@@ -61,7 +71,13 @@ async function getPagination(query) {
     listEvents = JSON.parse(listEvents.response);
     return listEvents;
   } catch (error) {
+    console.error(
+      "Calendly - Error retrieving paginated events data - ",
+      error
+    );
     showError(error);
+  } finally {
+    console.info("Calendly - Fetching paginated events block executed");
   }
 }
 
@@ -79,7 +95,10 @@ async function deleteEvent(url, reason) {
     listEvents = JSON.parse(listEvents.response);
     return listEvents;
   } catch (error) {
+    console.error("Calendly - Error deleting event - ", error);
     showError(error);
+  } finally {
+    console.info("Calendly - Delete event block executed");
   }
 }
 
@@ -96,7 +115,10 @@ async function getEventData(uri) {
     eventDetail = JSON.parse(eventDetail.response).collection;
     return eventDetail[0];
   } catch (error) {
+    console.error("Calendly - Error retrieving event data - ", error);
     showError(error);
+  } finally {
+    console.info("Calendly - Fetching event details block executed");
   }
 }
 
@@ -108,7 +130,10 @@ async function getDealContact() {
     console.log(eventDetail);
     return eventDetail;
   } catch (error) {
+    console.error("Calendly - Error retrieving deals contact data - ", error);
     showError(error);
+  } finally {
+    console.info("Calendly - Fetching deals contact detail block executed");
   }
 }
 
@@ -134,8 +159,7 @@ function showError(error) {
       showToast("error", "An error has occurred on the server");
       break;
     default:
-      showToast("error", "Unknown error occured. Please try again");
+      showToast("error", "Unknown error occured. Please try again later");
       break;
   }
-  console.error("Error Occured :", error);
 }

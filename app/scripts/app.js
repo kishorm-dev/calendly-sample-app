@@ -2,31 +2,36 @@ document.onreadystatechange = function () {
   if (document.readyState === "complete") init();
 };
 
+let [userDetails, contactDetails] = [];
+
 const scheduleMeeting = document.getElementById("schedule-meeting");
 const listEvents = document.getElementById("list-events");
 
-let [userDetails, contactDetails] = [];
-
 async function init() {
-  window.client = await app.initialized();
   try {
+    window.client = await app.initialized();
+
     scheduleMeeting.setAttribute("loading", true);
     listEvents.setAttribute("loading", true);
+
     [userDetails, contactDetails] = await Promise.all([
       getUser(),
       getContact(),
     ]);
+
     scheduleMeeting.removeAttribute("loading");
     listEvents.removeAttribute("loading");
-    scheduleMeeting.addEventListener("click", async () => {
-      await openBookingModal();
-    });
 
-    listEvents.addEventListener("click", async () => {
+    scheduleMeeting.addEventListener("click", () => {
+      openBookingModal();
+    });
+    listEvents.addEventListener("click", () => {
       openListEventsModal();
     });
   } catch (error) {
-    console.error(error);
+    console.error("Calendly - Error while initializing app - ", error);
+  } finally {
+    console.info("Calendly - App initializing block executed");
   }
 }
 
@@ -41,7 +46,9 @@ function openBookingModal() {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Calendly - Error while opening booking modal - ", error);
+  } finally {
+    console.info("Calendly - Opening booking modal block executed");
   }
 }
 
@@ -56,6 +63,8 @@ function openListEventsModal() {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Calendly - Error while opening list events modal - ", error);
+  } finally {
+    console.info("Calendly - Opening list event modal block executed");
   }
 }

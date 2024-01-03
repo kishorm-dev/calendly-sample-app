@@ -2,7 +2,8 @@ document.onreadystatechange = function () {
   if (document.readyState === "complete") init();
 };
 
-let userDetails, contactDetails;
+let userDetails = {},
+  contactDetails = {};
 
 const applyChanges = document.getElementById("apply-changes");
 const rangePicker = document.getElementById("range-picker");
@@ -10,15 +11,19 @@ const eventsSort = document.getElementById("events-sort");
 const eventsStatus = document.getElementById("events-status");
 
 async function init() {
-  window.client = await app.initialized();
-  renderWidget();
-}
-
-async function renderWidget() {
-  const data = await getModalData();
-  userDetails = data.userDetails;
-  contactDetails = data.contactDetails;
-  getEventDatas("&sort=start_time:desc");
+  try {
+    window.client = await app.initialized();
+    const data = await getModalData();
+    userDetails = data.userDetails;
+    contactDetails = data.contactDetails;
+    getEventDatas("&sort=start_time:desc");
+  } catch (error) {
+    console.error("Calendly - Error while initializing app - ", error);
+  } finally {
+    console.info(
+      "Calendly - App initializing block executed in list events modal"
+    );
+  }
 }
 
 async function getModalData() {
@@ -27,7 +32,9 @@ async function getModalData() {
     client.instance.resize({ height: "100vh" });
     return modalData.data;
   } catch (error) {
-    console.error(error);
+    console.error("Calendly - Error retrieving data from modal - ", error);
+  } finally {
+    console.info("Calendly - Retrieving list events data block executed");
   }
 }
 
@@ -60,7 +67,7 @@ function rescheduleEvent(url) {
     window.open(url, "_blank");
     client.instance.close();
   } catch (error) {
-    console.error(error);
+    console.error("Calendly - Error while rescheduling - ", error);
   }
 }
 

@@ -3,21 +3,23 @@ document.onreadystatechange = function () {
 };
 
 async function init() {
-  window.client = await app.initialized();
-  renderWidget();
-}
-
-async function renderWidget() {
-  const { userDetails, contactDetails } = await getData();
-  Calendly.initInlineWidget({
-    url: "https://calendly.com/" + userDetails.slug,
-    prefill: {
-      name:
-        contactDetails.name ||
-        `${contactDetails.first_name} ${contactDetails.last_name}`,
-      email: contactDetails.email,
-    },
-  });
+  try {
+    window.client = await app.initialized();
+    const { userDetails, contactDetails } = await getData();
+    Calendly.initInlineWidget({
+      url: "https://calendly.com/" + userDetails.slug,
+      prefill: {
+        name:
+          contactDetails.name ||
+          `${contactDetails.first_name} ${contactDetails.last_name}`,
+        email: contactDetails.email,
+      },
+    });
+  } catch (error) {
+    console.error("Calendly - Error while initializing app - ", error);
+  } finally {
+    console.info("Calendly - App initializing block executed in booking modal");
+  }
 }
 
 async function getData() {
@@ -26,7 +28,10 @@ async function getData() {
     let modalData = await client.instance.context();
     return modalData.data;
   } catch (error) {
+    console.error("Calendly - Error retrieving data from modal - ", error);
     console.error(error);
+  } finally {
+    console.info("Calendly - Retrieving booking modal details block executed");
   }
 }
 
@@ -42,16 +47,3 @@ window.addEventListener("message", async function (e) {
     showToast("success", "Events Scheduled Successfully.");
   }
 });
-
-async function closeModal(url) {
-  try {
-    client.instance.close();
-    await client.instance.send({
-      message: {
-        link: url,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
