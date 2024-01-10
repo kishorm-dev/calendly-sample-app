@@ -17,11 +17,16 @@ async function getUser() {
 async function getContact() {
   try {
     let contactDetails;
+    console.log(client.context.product);
     if (client.context.product == "freshchat") {
       contactDetails = await client.data.get("user");
       contactDetails = contactDetails.user;
     } else if (client.context.product == "freshworks_crm") {
-      contactDetails = await getDealContact();
+      let { deal } = await client.data.get("deal");
+      console.log(await client.data.get("currentHost"));
+      console.log(deal);
+      let dealId = deal.id;
+      contactDetails = await getDealContact(dealId);
       contactDetails = contactDetails.contacts[0];
     } else if (client.context.product == "freshservice") {
       contactDetails = await client.data.get("requester");
@@ -122,9 +127,14 @@ async function getEventData(uri) {
   }
 }
 
-async function getDealContact() {
+async function getDealContact(dealId) {
+  console.log(dealId);
   try {
-    let eventDetail = await client.request.invokeTemplate("getDealContact", {});
+    let eventDetail = await client.request.invokeTemplate("getDealContact", {
+      context: {
+        deal_id: dealId,
+      },
+    });
     console.log(eventDetail);
     eventDetail = JSON.parse(eventDetail.response);
     console.log(eventDetail);

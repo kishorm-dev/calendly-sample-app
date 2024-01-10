@@ -42,7 +42,7 @@ function getISODate(date) {
   return date.split("-").reverse().join("-");
 }
 
-async function cancelEvent(url, accordion) {
+async function cancelEvent(url, index) {
   const newUrl = new URL(url);
   let cancelUrl = newUrl.pathname.split("/");
   cancelUrl = cancelUrl[cancelUrl.length - 1];
@@ -57,8 +57,10 @@ async function cancelEvent(url, accordion) {
     showToast("info", "Event Canceled Successfully");
     cancelFooter.setAttribute("submit-disabled", false);
     cancelReason.value = "";
+    document
+      .querySelector(`[data-event-id='${index}'] .event-methods`)
+      ?.remove();
     cancelModal.close();
-    accordion.remove();
   });
 }
 
@@ -95,49 +97,6 @@ function getUUID(uri) {
   return url;
 }
 
-async function renderPagination(page) {
-  const eventsFooter = document.querySelector(".events-footer");
-  eventsFooter.innerHTML = "";
-  if (
-    page?.count === 0 ||
-    (page?.previous_page_token === null && page?.next_page_token === null)
-  ) {
-    return;
-  }
-
-  const nextPage = document.createElement("fw-button");
-  const prevPage = document.createElement("fw-button");
-
-  nextPage.textContent = "Show Next";
-  prevPage.textContent = "Show Previous";
-
-  nextPage.setAttribute("color", "secondary");
-  prevPage.setAttribute("color", "secondary");
-  prevPage.setAttribute("disabled", true);
-  nextPage.setAttribute("disabled", true);
-
-  if (page?.previous_page_token != null) {
-    prevPage.removeAttribute("disabled");
-    prevPage.addEventListener("click", async () => {
-      prevPage.setAttribute("loading", true);
-      let prevUrl = new URL(page.previous_page);
-      await getPaginateData(prevUrl.search);
-      prevPage.removeAttribute("loading");
-    });
-  }
-  if (page?.next_page_token != null) {
-    nextPage.removeAttribute("disabled");
-    nextPage.addEventListener("click", async () => {
-      nextPage.setAttribute("loading", true);
-      let nextUrl = new URL(page.next_page);
-      await getPaginateData(nextUrl.search);
-      nextPage.removeAttribute("loading");
-    });
-  }
-  eventsFooter.appendChild(prevPage);
-  eventsFooter.appendChild(nextPage);
-}
-
 async function renderEvents(eventList) {
   const eventsWrapper = document.querySelector(".events-body");
   if (eventList?.length < 1) {
@@ -146,9 +105,10 @@ async function renderEvents(eventList) {
     return;
   }
   eventsWrapper.innerHTML = "";
-  eventList?.map((event) => {
+  eventList?.map((event, index) => {
     const accordion = document.createElement("fw-accordion");
     accordion.setAttribute("type", "default");
+    accordion.setAttribute("data-event-id", index);
     const accordionTitle = document.createElement("fw-accordion-title");
     const formatDate = document.createElement("fw-format-date");
     formatDate.setAttribute("date", event.start_time);
@@ -171,7 +131,7 @@ async function renderEvents(eventList) {
     accordion.addEventListener("fwAccordionToggle", async () => {
       if (accordion.getAttribute("expanded") == null) {
         const eventDetail = await getEventData(uri);
-        renderEventBody(accordionBody, event, eventDetail, accordion);
+        renderEventBody(accordionBody, event, eventDetail, index);
         skeleton.remove();
       }
     });
@@ -181,7 +141,7 @@ async function renderEvents(eventList) {
   });
 }
 
-function renderEventBody(body, event, eventDetail, accordion) {
+function renderEventBody(body, event, eventDetail, index) {
   body.innerHTML = `<div class="event-row">
     <div class="fw-type-bold">Meeting Host :</div>
     <fw-label
@@ -230,14 +190,14 @@ function renderEventBody(body, event, eventDetail, accordion) {
   </div>`;
   let eventEndTime = new Date(event.end_time);
   let today = new Date();
-  if (eventEndTime > today) {
-    body.innerHTML += `<div class="">
+  if (eventEndTime > today && eventDetail.status == "active") {
+    body.innerHTML += `<div class="event-methods">
     <fw-tooltip content="You will be redirected to rescheduling page">
       <fw-button color="primary" onClick="rescheduleEvent('${eventDetail.reschedule_url}')"> Reschedule Event </fw-button>
       </fw-tooltip>
       <fw-tooltip content="Cancel event">
         <fw-button color="danger" size="icon"
-        onClick="cancelEvent('${eventDetail.event}',${accordion})">
+        onClick="cancelEvent('${eventDetail.event}',${index})">
           <fw-icon slot="before-label" name="delete"></fw-icon>
         </fw-button>
       </fw-tooltip>
@@ -247,17 +207,10 @@ function renderEventBody(body, event, eventDetail, accordion) {
 }
 
 async function getEventDatas(query) {
-  const { collection, pagination } = await getEvents(
+  const { collection } = await getEvents(
     userDetails.uri,
     query,
     contactDetails.email
   );
   renderEvents(collection);
-  renderPagination(pagination);
-}
-
-async function getPaginateData(query) {
-  const { collection, pagination } = (await getPagination(query)) || {};
-  renderEvents(collection);
-  renderPagination(pagination);
 }

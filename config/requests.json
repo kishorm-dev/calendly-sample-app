@@ -24,7 +24,6 @@
         "Content-Type": "application/json"
       },
       "query": {
-        "count": 10,
         "invitee_email": "<%= context.invitee_email %>"
       }
     },
@@ -63,27 +62,12 @@
       "oauth": "calendly"
     }
   },
-  "calendlyPagination": {
-    "schema": {
-      "method": "GET",
-      "host": "api.calendly.com",
-      "path": "/scheduled_events<%= context.query %>",
-      "headers": {
-        "Authorization": "Bearer <%=access_token%>",
-        "Content-Type": "application/json"
-      }
-    },
-    "options": {
-      "retryDelay": 1000,
-      "oauth": "calendly"
-    }
-  },
   "getDealContact": {
     "schema": {
-      "protocol": "https",
       "method": "GET",
+      "protocol": "https",
       "host": "<%= iparam.domain %>.myfreshworks.com",
-      "path": "/crm/sales/api/deals/402000488060?include=contacts",
+      "path": "/crm/sales/api/deals/<%= context.deal_id %>?include=contacts",
       "headers": {
         "Authorization": "Token token=<%= iparam.api_key %>",
         "Content-Type": "application/json"

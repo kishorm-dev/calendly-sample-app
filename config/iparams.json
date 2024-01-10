@@ -5,13 +5,13 @@
     "type": "text",
     "secure": true,
     "required": true,
-    "modules": ["deal", "chat_conversation"]
+    "modules": ["deal"]
   },
   "domain": {
     "display_name": "Domain name",
-    "description": "Please enter your domain name",
+    "description": "Please enter your domain name.",
     "type": "text",
     "required": true,
-    "modules": ["deal", "chat_conversation"]
+    "modules": ["deal"]
   }
 }

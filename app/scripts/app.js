@@ -9,11 +9,13 @@ const listEvents = document.getElementById("list-events");
 
 async function init() {
   try {
+    // Initialize the app.
     window.client = await app.initialized();
 
     scheduleMeeting.setAttribute("loading", true);
     listEvents.setAttribute("loading", true);
 
+    // Retrieve the user and contact details
     [userDetails, contactDetails] = await Promise.all([
       getUser(),
       getContact(),
