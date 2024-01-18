@@ -17,16 +17,14 @@ async function getUser() {
 async function getContact() {
   try {
     let contactDetails;
-    console.log(client.context.product);
     if (client.context.product == "freshchat") {
       contactDetails = await client.data.get("user");
       contactDetails = contactDetails.user;
     } else if (client.context.product == "freshworks_crm") {
-      let { deal } = await client.data.get("deal");
-      console.log(await client.data.get("currentHost"));
-      console.log(deal);
-      let dealId = deal.id;
-      contactDetails = await getDealContact(dealId);
+      let deal = await client.data.get("currentEntityInfo");
+      contactDetails = await getDealContact(
+        deal.currentEntityInfo.currentEntityId
+      );
       contactDetails = contactDetails.contacts[0];
     } else if (client.context.product == "freshservice") {
       contactDetails = await client.data.get("requester");
@@ -44,13 +42,13 @@ async function getContact() {
   }
 }
 
-async function getEvents(uri, query, invitee_email) {
+async function getEvents(url, query, invitee_email) {
   try {
     let listEvents = await client.request.invokeTemplate(
       "calendlyListSchedules",
       {
         context: {
-          user: uri,
+          user: url,
           query,
           invitee_email,
         },
@@ -107,13 +105,13 @@ async function deleteEvent(url, reason) {
   }
 }
 
-async function getEventData(uri) {
+async function getEventData(url) {
   try {
     let eventDetail = await client.request.invokeTemplate(
       "calendlyEventDetails",
       {
         context: {
-          uuid: uri,
+          uuid: url,
         },
       }
     );
@@ -128,16 +126,13 @@ async function getEventData(uri) {
 }
 
 async function getDealContact(dealId) {
-  console.log(dealId);
   try {
     let eventDetail = await client.request.invokeTemplate("getDealContact", {
       context: {
         deal_id: dealId,
       },
     });
-    console.log(eventDetail);
     eventDetail = JSON.parse(eventDetail.response);
-    console.log(eventDetail);
     return eventDetail;
   } catch (error) {
     console.error("Calendly - Error retrieving deals contact data - ", error);
