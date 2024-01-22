@@ -1,0 +1,19 @@
+{
+  "fetch_api_key": {
+    "display_name": "Auto Fetch API",
+    "description": "Check if you want to fetch API key automatically",
+    "type": "checkbox",
+    "modules": ["deal"],
+    "default_value": false,
+    "secure": true,
+    "events": [{ "change": "autoFetchApi" }]
+  },
+  "api_key": {
+    "display_name": "API Key",
+    "description": "Please enter your API Key",
+    "type": "text",
+    "required": true,
+    "secure": true,
+    "modules": ["deal"]
+  }
+}

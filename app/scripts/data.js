@@ -21,11 +21,8 @@ async function getContact() {
       contactDetails = await client.data.get("user");
       contactDetails = contactDetails.user;
     } else if (client.context.product == "freshworks_crm") {
-      let deal = await client.data.get("currentEntityInfo");
-      contactDetails = await getDealContact(
-        deal.currentEntityInfo.currentEntityId
-      );
-      contactDetails = contactDetails.contacts[0];
+      contactDetails = await getDealContact();
+      contactDetails = contactDetails[0];
     } else if (client.context.product == "freshservice") {
       contactDetails = await client.data.get("requester");
       contactDetails = contactDetails.requester;
@@ -61,26 +58,6 @@ async function getEvents(url, query, invitee_email) {
     showError(error);
   } finally {
     console.info("Calendly - Fetching event list block executed");
-  }
-}
-
-async function getPagination(query) {
-  try {
-    let listEvents = await client.request.invokeTemplate("calendlyPagination", {
-      context: {
-        query,
-      },
-    });
-    listEvents = JSON.parse(listEvents.response);
-    return listEvents;
-  } catch (error) {
-    console.error(
-      "Calendly - Error retrieving paginated events data - ",
-      error
-    );
-    showError(error);
-  } finally {
-    console.info("Calendly - Fetching paginated events block executed");
   }
 }
 
@@ -125,15 +102,16 @@ async function getEventData(url) {
   }
 }
 
-async function getDealContact(dealId) {
+async function getDealContact() {
   try {
+    let deal = await client.data.get("currentEntityInfo");
     let eventDetail = await client.request.invokeTemplate("getDealContact", {
       context: {
-        deal_id: dealId,
+        deal_id: deal["currentEntityInfo"]["currentEntityId"],
       },
     });
     eventDetail = JSON.parse(eventDetail.response);
-    return eventDetail;
+    return eventDetail["contacts"];
   } catch (error) {
     console.error("Calendly - Error retrieving deals contact data - ", error);
     showError(error);

@@ -2,24 +2,66 @@ document.onreadystatechange = function () {
   if (document.readyState === "complete") init();
 };
 
+const contactListInp = document.getElementById("contact-list");
 async function init() {
   try {
     window.client = await app.initialized();
     const { userDetails, contactDetails } = await getData();
-    Calendly.initInlineWidget({
-      url: "https://calendly.com/" + userDetails.slug,
-      prefill: {
-        name:
-          contactDetails.name ||
-          `${contactDetails.first_name} ${contactDetails.last_name}`,
-        email: contactDetails.email,
-      },
-    });
+
+    let prefillData = {
+      name: contactDetails.name,
+      email: contactDetails.email,
+    };
+
+    if (client.context.product === "freshworks_crm") {
+      document.getElementById("booking-loader")?.remove();
+      await showContactSelect();
+      document
+        .querySelector("#book-event")
+        .addEventListener("fwClick", async () => {
+          prefillData = {
+            name: `${contactDetails.first_name} ${contactDetails.last_name}`,
+            email: contactDetails.email,
+          };
+          document.querySelector(".contact-list-wrapper").remove();
+          await initializeCalendlyWidget(userDetails, prefillData);
+        });
+    } else {
+      document.querySelector(".contact-list-wrapper").remove();
+      await initializeCalendlyWidget(userDetails, prefillData);
+    }
   } catch (error) {
     console.error("Calendly - Error while initializing app - ", error);
   } finally {
     console.info("Calendly - App initializing block executed in booking modal");
   }
+}
+
+async function initializeCalendlyWidget(userDetails, prefillData) {
+  const widgetUrl =
+    client.context.product === "freshworks_crm"
+      ? `https://calendly.com/${
+          userDetails.slug
+        }?guests=${contactListInp.value.join(",")}`
+      : `https://calendly.com/${userDetails.slug}`;
+
+  Calendly.initInlineWidget({
+    url: widgetUrl,
+    prefill: prefillData,
+  });
+}
+
+async function showContactSelect() {
+  let contactList = await getDealContact();
+  contactList = contactList.map((x) => {
+    return {
+      text: x.display_name,
+      subText: x.email,
+      value: x.email,
+      graphicsProps: { image: x.avatar },
+    };
+  });
+  contactListInp.options = contactList;
 }
 
 async function getData() {

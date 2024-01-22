@@ -9,6 +9,22 @@
     <link rel="stylesheet" type="text/css" href="../styles/style.css" />
   </head>
   <body style="height: 100vh">
+    <div class="contact-list-wrapper">
+      <fw-select
+        id="contact-list"
+        label="Select contacts to add in meeting"
+        no-data-text="Type to search.."
+        not-found-text="Contact Not Available"
+        placeholder="Your choices"
+        hint-text="Select multiple options"
+        options-variant="avatar"
+        tag-variant="avatar"
+        multiple
+        max="10"
+      >
+      </fw-select>
+      <fw-button id="book-event"> Next </fw-button>
+    </div>
     <fw-skeleton variant="rect" height="100%" id="booking-loader"></fw-skeleton>
     <fw-toast id="type_toast"></fw-toast>
     <script
